@@ -14,17 +14,22 @@ const debounce = (callback, delay) => {
 function App() {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
-  console.log(query);
-  console.log(products);
 
-  const eseguiFetch = useCallback(debounce((query) => {
-    fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`)
-      .then(res => res.json())
-      .then(data => setProducts(data))
+  const getSearchedProducts = useCallback(debounce(async (query) => {
+    if (!query) {
+      return
+    }
+    try {
+      const res = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`);
+      const data = await res.json()
+      setProducts(data)
+    } catch (error) {
+      console.error(error)
+    }
   }, 1000), [])
 
   useEffect(() => {
-    eseguiFetch(query)
+    getSearchedProducts(query)
   }, [query])
 
   return (
