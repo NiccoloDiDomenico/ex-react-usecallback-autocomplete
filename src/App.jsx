@@ -1,5 +1,15 @@
 import './App.css'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+
+const debounce = (callback, delay) => {
+  let timer;
+  return (value) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback(value);
+    }, delay);
+  };
+}
 
 function App() {
   const [query, setQuery] = useState("");
@@ -7,11 +17,14 @@ function App() {
   console.log(query);
   console.log(products);
 
-
-  useEffect(() => {
+  const eseguiFetch = useCallback(debounce((query) => {
     fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`)
       .then(res => res.json())
       .then(data => setProducts(data))
+  }, 1000), [])
+
+  useEffect(() => {
+    eseguiFetch(query)
   }, [query])
 
   return (
