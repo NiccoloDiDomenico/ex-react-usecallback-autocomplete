@@ -14,6 +14,7 @@ const debounce = (callback, delay) => {
 function App() {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
+  const [productDetails, setProductDetails] = useState(null);
 
   const getSearchedProducts = useCallback(debounce(async (query) => {
     if (!query) {
@@ -32,6 +33,14 @@ function App() {
     getSearchedProducts(query)
   }, [query])
 
+  const handleProductDetails = (id) => {
+    setProducts([]);
+    fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products/${id}`)
+      .then((res) => res.json())
+      .then((data) => setProductDetails(data))
+      .catch((error) => console.error(error))
+  }
+
   return (
     <>
       <div className="search-container">
@@ -47,11 +56,29 @@ function App() {
         {query && products.length > 0 && (
           <ul className="dropdown">
             {products.map((p) => (
-              <li key={p.id}>&#128269; {p.name}</li>
+              <li
+                key={p.id}
+                onClick={() => handleProductDetails(p.id)}>
+                &#128269; {p.name}
+              </li>
             ))}
           </ul>
         )}
-      </div>
+      </div >
+
+      {/* Product details */}
+      {productDetails && (
+        <div className="card">
+          <div className="card-header">
+            <img src={productDetails.image} alt="" />
+          </div>
+          <div className="card-body">
+            <h3>{productDetails.name}</h3>
+            <p>{productDetails.brand}</p>
+            <p>{productDetails.description}</p>
+          </div>
+        </div>
+      )}
     </>
   )
 }
